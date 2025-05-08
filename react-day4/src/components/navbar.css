@@ -1,0 +1,14 @@
+.nav-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: lightslategrey;
+    padding: 10px;
+}
+
+.nav-container ul{
+    display: flex;
+    font-weight: bold;
+    gap: 12px;
+    list-style-type: none;
+}
