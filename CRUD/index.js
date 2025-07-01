@@ -5,6 +5,7 @@ const dbConnection = require("./config/dbConnection");
 const User = require("./model/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const authMiddleware = require("./middleware/authMiddleware");
 
 // Middleware for accepting a json data from postman (or) frontend
 app.use(express.json());
@@ -14,7 +15,7 @@ const jwt_key = "LakshmiNarasimhan";
 // CRUD API's
 
 // POST API
-app.post("/products", async (req, res) => {
+app.post("/products", authMiddleware(), async (req, res) => {
     try {
         // Creating a data into mongodb collection - insertOne
         const newProduct = await Products.create(req.body);
@@ -35,7 +36,7 @@ app.get("/products", async (req, res) => {
 })
 
 // UPDATE API
-app.put("/products/:id", async (req, res) => {
+app.put("/products/:id", authMiddleware(), async (req, res) => {
     try {
         // findByIdAndUpdate - updateOne
         const updatedProducts = await Products.findByIdAndUpdate(
@@ -49,7 +50,7 @@ app.put("/products/:id", async (req, res) => {
 })
 
 // DELETE API
-app.delete("/products/:id", async (req, res) => {
+app.delete("/products/:id", authMiddleware(), async (req, res) => {
     try{
         // findByIdAndDelete - deleteOne
         await Products.findByIdAndDelete(req.params.id);
@@ -62,7 +63,7 @@ app.delete("/products/:id", async (req, res) => {
 // Authentication API's
 // 1) Register API(signup)
 app.post("/auth/register", async(req, res) => {
-    const{email, password} = req.body;
+    const{email, password, role} = req.body;
 
     try{
         // using findOne method to check the email is already register or not
@@ -76,7 +77,7 @@ app.post("/auth/register", async(req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // receive the processed data and save it our collection
-        const user = new User({email, password: hashedPassword});
+        const user = new User({email, password: hashedPassword, role});
         await user.save();
         res.status(201).json({message: "User registered successfully"});
 
@@ -101,7 +102,7 @@ app.post("/auth/login", async(req, res) => {
         }
         // Generate JWT
         const token = jwt.sign(
-            {userId: user._id},
+            {userId: user._id, role: user.role},
             jwt_key,
             {expiresIn: '1h'}
         )
