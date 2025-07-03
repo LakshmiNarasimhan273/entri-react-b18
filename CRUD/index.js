@@ -6,9 +6,13 @@ const User = require("./model/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("./middleware/authMiddleware");
+const cors = require("cors");
 
 // Middleware for accepting a json data from postman (or) frontend
 app.use(express.json());
+// CORS - Cross Origin Resource Sharing
+// CORS policy it will allow us to access our own api resources
+app.use(cors());
 
 const jwt_key = "LakshmiNarasimhan";
 
@@ -106,7 +110,7 @@ app.post("/auth/login", async(req, res) => {
             jwt_key,
             {expiresIn: '1h'}
         )
-        res.status(200).json({message: "Login successful", token})
+        res.status(200).json({message: "Login successful", token: token})
     }catch(err){
         console.error(err);        
     }
